@@ -60,16 +60,7 @@ func (b *Board) DrawPlayerSide() string {
 
 func (b *Board) DrawEnemySide() string {
 	builder := &strings.Builder{}
-
-	hitMatrix := make(map[int]string)
-	for _, hit := range b.hits {
-		i := hit.YCoordinate*10 + hit.XCoordinate
-		if hit.Hit {
-			hitMatrix[i] = " XX "
-		} else {
-			hitMatrix[i] = " OO "
-		}
-	}
+	hitMatrix := b.GetHitMatrix()
 
 	builder.WriteString("Your hits\n")
 	builder.WriteString("   01  02  03  04  05  06  07  08  09  10")
@@ -111,7 +102,27 @@ func (b *Board) AddHit(x int, y int, hit bool) {
 	b.hits = append(b.hits, &Hit{XCoordinate: x, YCoordinate: y, Hit: hit})
 }
 
+func (b *Board) GetHitMatrix() map[int]string {
+	hitMatrix := make(map[int]string)
+	for _, hit := range b.hits {
+		i := hit.YCoordinate*10 + hit.XCoordinate
+		if hit.Hit {
+			hitMatrix[i] = " XX "
+		} else {
+			hitMatrix[i] = " OO "
+		}
+	}
+
+	return hitMatrix
+}
+
 func (b *Board) AddEnemyHit(x int, y int) *Hit {
+	for _, existingHit := range b.enemyHits {
+		if existingHit.XCoordinate == x && existingHit.YCoordinate == y {
+			return existingHit
+		}
+	}
+
 	shipMatrix := b.getShipMatrix()
 
 	hit := false

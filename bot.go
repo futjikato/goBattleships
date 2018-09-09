@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/futjikato/goBattleships/battleships"
+	"github.com/futjikato/goBattleships/bots"
 	"github.com/futjikato/goBattleships/messages"
 )
 
@@ -15,6 +16,7 @@ type botGameState struct {
 	board     *battleships.Board
 	turn      bool
 	hitIter   int
+	bot       *bots.Bot
 }
 
 func Bot(name, address string) {
@@ -31,6 +33,7 @@ func Bot(name, address string) {
 		screen:  lobbyScreen,
 		board:   battleships.NewBoard(),
 		hitIter: 0,
+		bot:     bots.New(),
 	}
 
 	for gs.active {
@@ -80,8 +83,7 @@ func Bot(name, address string) {
 					fmt.Println("LOST :(")
 					gs.active = false
 				} else {
-					hitx := gs.hitIter % 10
-					hity := gs.hitIter / 10
+					hitx, hity := gs.bot.NextHit(gs.board)
 					outMsgChan <- &messages.Msg{
 						MsgType: "hit",
 						Payload: fmt.Sprintf("%d %d", hitx, hity),
@@ -96,4 +98,5 @@ func Bot(name, address string) {
 			}
 		}
 	}
+	gs.bot.PrintHistory()
 }
